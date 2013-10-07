@@ -1,20 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Control.Monad.IO.Class (liftIO)
+import Data.Monoid (mconcat)
+import Network (withSocketsDo)
 import Web.Scotty
 import Web.Scotty.Session
-import Network.Wai.Parse
-import Network
-import qualified Data.Map as Map
-import qualified Data.ByteString.Lazy as Lbs
-import Data.Monoid (mconcat)
-import Data.Text.Lazy
-import Control.Monad.IO.Class
 
-main = withSocketsDo $ scotty 1986 $ do
-  get "/" $ do
-    msid <- getSessionId
-    liftIO $ putStrLn $ show msid
-    sid <- liftIO $ genSessionId
-    setSessionId sid
-    case msid of Just sid -> html "<p>OK!</p>"
-                 Nothing  -> html "<p>Session Not Found!</p>"
+main :: IO ()
+main = do
+  withSocketsDo $ scotty 1986 $ do
+    get "/" $ do
+      getSid <- getSessionId
+      newSid <- liftIO genSessionId
+      setSessionId newSid
+      case getSid of
+        Just oldSid -> html $ mconcat ["<p>Old Key: ", oldSid, "</p><p>New key: ", newSid, "</p>"]
+        Nothing     -> html $ mconcat ["<p>Session Not Found!</p><p>New key: ", newSid, "</p>"]

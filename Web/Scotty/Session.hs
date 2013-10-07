@@ -1,12 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Web.Scotty.Session where
+module Web.Scotty.Session (
+  SessionId,
+  getSessionId,
+  setSessionId,
+  genSessionId
+) where
 
 import Web.Scotty
 import Web.Cookie
 import qualified Data.ByteString as Bs
 import qualified Data.ByteString.Lazy as Lbs
-import qualified Data.Text as T
 import qualified Data.Text.Lazy as Lt
 import qualified Data.Text.Lazy.Encoding as Lt
 import Blaze.ByteString.Builder (toLazyByteString)
@@ -47,7 +51,3 @@ genSessionId = fmap Lt.pack $ (sequence . take 80 . repeat) genPlaneChar
 
 lazyText2ByteString :: Lt.Text -> Bs.ByteString
 lazyText2ByteString =  Lbs.toStrict . Lt.encodeUtf8
-
-byteString2lazyText :: Bs.ByteString -> Lt.Text
-byteString2lazyText =  Lt.decodeUtf8 . Lbs.fromStrict
-
